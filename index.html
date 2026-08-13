@@ -129,6 +129,69 @@
     outline-offset:2px;
     box-shadow:var(--shadow);
   }
+  .explain-toggle{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--primary-tint);
+    border:1px solid #CFE6DC;
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:15px;
+    font-weight:700;
+    color:var(--primary-dark);
+    cursor:pointer;
+    margin-bottom:14px;
+    min-height:52px;
+  }
+  .explain-arrow{
+    transition:transform .15s ease;
+    font-size:12px;
+  }
+  .explain-toggle[aria-expanded="true"] .explain-arrow{transform:rotate(180deg);}
+  .explain-panel{
+    display:none;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:16px;
+  }
+  .explain-panel.show{display:block;}
+  .explain-lead{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0 0 12px;
+  }
+  .explain-list{margin:0;}
+  .explain-list .row{
+    display:flex;
+    gap:12px;
+    padding:9px 0;
+    border-top:1px solid var(--border);
+    align-items:baseline;
+  }
+  .explain-list .row:first-child{border-top:none;}
+  .explain-list dt{
+    flex:none;
+    width:78px;
+    font-weight:700;
+    color:var(--primary-dark);
+    font-size:14px;
+  }
+  .explain-list dd{
+    margin:0;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .explain-note{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:12px 0 0;
+    padding-top:10px;
+    border-top:1px solid var(--border);
+  }
   .level-unknown{
     margin-top:10px;
     width:100%;
@@ -348,6 +411,17 @@
   <section>
     <div class="section-title"><span class="num">1</span><h2>要介護度を選ぶ</h2></div>
     <p class="section-hint">認定を受けている場合はその区分を、まだの場合や分からない場合は下のボタンからどうぞ。</p>
+
+    <button class="explain-toggle" id="explainToggle" type="button" aria-expanded="false">
+      <span>❓ 要支援・要介護ってなに？</span>
+      <span class="explain-arrow" id="explainArrow">▼</span>
+    </button>
+    <div class="explain-panel" id="explainPanel">
+      <p class="explain-lead">数字が大きいほど、日常生活で必要な介助の度合いが大きいことを表します。あくまで目安です。正式な区分は、市区町村の認定調査を受けて決まります。</p>
+      <dl class="explain-list" id="explainList"></dl>
+      <p class="explain-note">正確な区分を知りたい場合は、お住まいの地域包括支援センターや市区町村の介護保険担当窓口にご相談ください。</p>
+    </div>
+
     <div class="level-scale" id="levelScale"></div>
     <button class="level-unknown" id="unknownBtn" type="button">まだ認定を受けていない／わからない（すべての施設を見る）</button>
 
@@ -391,13 +465,20 @@
 <script>
 /* ---------- データ（テストデータ／後でWAM NET等の実データに差し替え予定） ---------- */
 const CARE_LEVELS = [
-  {id:"要支援1", label:"要支援1", severity:1},
-  {id:"要支援2", label:"要支援2", severity:2},
-  {id:"要介護1", label:"要介護1", severity:3},
-  {id:"要介護2", label:"要介護2", severity:4},
-  {id:"要介護3", label:"要介護3", severity:5},
-  {id:"要介護4", label:"要介護4", severity:6},
-  {id:"要介護5", label:"要介護5", severity:7},
+  {id:"要支援1", label:"要支援1", severity:1,
+    desc:"日常生活の基本動作はほぼ自分でできるが、一部に見守りや手助けがあると安心な状態。"},
+  {id:"要支援2", label:"要支援2", severity:2,
+    desc:"要支援1より動作の低下が見られ、掃除や買い物など一部の生活動作に部分的な介助が必要な状態。"},
+  {id:"要介護1", label:"要介護1", severity:3,
+    desc:"立ち上がりや歩行が不安定になり始め、身の回りの世話に一部介助が必要な状態。"},
+  {id:"要介護2", label:"要介護2", severity:4,
+    desc:"要介護1よりさらに動作能力が低下し、食事や排せつなどにも部分的な介助が必要になる状態。"},
+  {id:"要介護3", label:"要介護3", severity:5,
+    desc:"立ち上がりや歩行が自力では難しく、日常生活の多くの場面で全面的な介助が必要な状態。"},
+  {id:"要介護4", label:"要介護4", severity:6,
+    desc:"日常生活を送る能力がさらに低下し、ほぼ全面的な介助が必要な状態。"},
+  {id:"要介護5", label:"要介護5", severity:7,
+    desc:"ほぼ寝たきりの状態で、食事・排せつ・移動など生活全般で全面的な介助が必要な状態。"},
 ];
 
 const FACILITIES = [
@@ -491,6 +572,22 @@ CARE_LEVELS.forEach(lv=>{
   levelScaleEl.appendChild(btn);
 });
 document.getElementById("unknownBtn").addEventListener("click", ()=>selectLevel("unknown"));
+
+/* ---------- 説明パネル ---------- */
+const explainList = document.getElementById("explainList");
+explainList.innerHTML = CARE_LEVELS.map(lv=>`
+  <div class="row">
+    <dt>${lv.label}</dt>
+    <dd>${lv.desc}</dd>
+  </div>
+`).join("");
+
+const explainToggle = document.getElementById("explainToggle");
+const explainPanel = document.getElementById("explainPanel");
+explainToggle.addEventListener("click", ()=>{
+  const isOpen = explainPanel.classList.toggle("show");
+  explainToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+});
 
 function selectLevel(levelId){
   selectedLevel = levelId;
