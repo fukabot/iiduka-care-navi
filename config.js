@@ -3,4 +3,4 @@
 // このファイルはリポジトリにそのままアップロードして大丈夫です
 // （APIキー側で「fukabot.github.io/*」からのアクセスのみ許可する制限をかけてあるため）。
 
-const GOOGLE_MAPS_API_KEY = AIzaSyBM74hHgZ6S-7gFXEqfJTGZfxb1oejSseQ;
+const GOOGLE_MAPS_API_KEY = AIzaSyDYG7Hu4uwvtr_qlZGt7MhgvKhfnd9C6Es;
