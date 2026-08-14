@@ -877,11 +877,11 @@ async function showFacilitiesOnMap(facilities){
       title:f.name,
       icon:{
         path: google.maps.SymbolPath.CIRCLE,
-        scale:9,
+        scale:13,
         fillColor: scoreColor(score),
         fillOpacity:1,
         strokeColor:"#ffffff",
-        strokeWeight:2,
+        strokeWeight:3,
       }
     });
     const info = new google.maps.InfoWindow({
@@ -926,9 +926,30 @@ function showRoute(facility){
         ${!userLocation ? "<br><span style='font-size:12px;color:#888;'>※現在地が取得できなかったため、飯塚市役所を出発地点にしています。</span>" : ""}
       `;
     } else if(status === "ZERO_RESULTS"){
-      routeInfo.innerHTML = "この区間の公共交通ルートが見つかりませんでした。徒歩・車での経路をご検討ください。";
+      showRouteFallback(facility, origin, routeInfo);
     } else {
       routeInfo.innerHTML = "ルートの取得に失敗しました。しばらくしてから再度お試しください。";
+    }
+  });
+}
+
+function showRouteFallback(facility, origin, routeInfo){
+  routeInfo.textContent = "バス路線が見つからなかったため、車での参考ルートを検索しています…";
+  directionsService.route({
+    origin,
+    destination: {lat:facility.lat, lng:facility.lng},
+    travelMode: google.maps.TravelMode.DRIVING,
+  }, (result, status)=>{
+    if(status === "OK"){
+      directionsRenderer.setDirections(result);
+      const leg = result.routes[0].legs[0];
+      routeInfo.innerHTML = `
+        <strong>${facility.name}</strong> までの参考ルート（車）<br>
+        所要時間の目安：${leg.duration.text}／距離：${leg.distance.text}
+        <br><span style="font-size:12px;color:#888;">※この区間の公共交通ルート情報がGoogle側に無いため、車での目安ルートを表示しています。${!userLocation ? "現在地も取得できなかったため、飯塚市役所を出発地点にしています。" : ""}</span>
+      `;
+    } else {
+      routeInfo.innerHTML = "この区間のルートが見つかりませんでした。地図上で直接ご確認ください。";
     }
   });
 }
