@@ -389,6 +389,46 @@
     padding:24px 20px 8px;
   }
 
+  /* Map section */
+  #map{
+    width:100%;
+    height:340px;
+    border-radius:var(--radius);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+  }
+  .map-legend{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .map-legend span{display:flex; align-items:center; gap:6px;}
+  .dot{width:12px;height:12px;border-radius:50%; display:inline-block;}
+  .dot-good{background:#2F8C4A;}
+  .dot-mid{background:#E38A3D;}
+  .dot-weak{background:#C65B4E;}
+  .route-info{
+    margin-top:14px;
+    font-size:14px;
+    color:var(--ink);
+    display:none;
+  }
+  .route-info.show{
+    display:block;
+    background:var(--primary-tint);
+    border:1px solid #CFE6DC;
+    border-radius:14px;
+    padding:14px 16px;
+  }
+  .map-note{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:10px;
+  }
+
   @media (min-width:600px){
     body{font-size:19px;}
     .level-scale{grid-template-columns:repeat(7,1fr);}
@@ -443,6 +483,18 @@
     <div id="resultList"></div>
   </section>
 
+  <section id="mapSection" style="display:none;">
+    <div class="section-title"><span class="num">3</span><h2>地図で見る・ルート案内</h2></div>
+    <p class="section-hint">マーカーの色は、交通アクセスの目安（緑＝アクセス良好、赤＝弱い）を表しています。マーカーをタップすると、現在地からのバスルートを表示できます。</p>
+    <div class="map-legend">
+      <span><i class="dot dot-good"></i>アクセス良好</span>
+      <span><i class="dot dot-mid"></i>ふつう</span>
+      <span><i class="dot dot-weak"></i>アクセス弱め</span>
+    </div>
+    <div id="map"></div>
+    <div id="routeInfo" class="route-info"></div>
+  </section>
+
 </div>
 
 <div class="fav-bar" id="favBar">
@@ -462,6 +514,7 @@
 
 <footer>医療・介護アクセスナビ（第15回 e-ZUKAスマートアプリコンテスト2026 応募作品・開発中）</footer>
 
+<script src="config.js"></script>
 <script>
 /* ---------- データ（テストデータ／後でWAM NET等の実データに差し替え予定） ---------- */
 const CARE_LEVELS = [
@@ -488,7 +541,8 @@ const FACILITIES = [
     accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
     vacancy:"あり", costMin:9, costMax:14,
     services:["食事提供","入浴介助","機能訓練"], transport:true,
-    address:"飯塚市片島エリア（仮）", distanceKm:2.3, phone:"0948-XX-0001"
+    address:"飯塚市片島エリア（仮）", distanceKm:2.3, phone:"0948-XX-0001",
+    lat:33.6459, lng:130.6980
   },
   {
     id:2, name:"にこにこホーム穂波",
@@ -496,7 +550,8 @@ const FACILITIES = [
     accepts:["要支援1","要支援2","要介護1","要介護2"],
     vacancy:"あり", costMin:3, costMax:6,
     services:["送迎","リハビリ","レクリエーション"], transport:true,
-    address:"飯塚市穂波エリア（仮）", distanceKm:1.5, phone:"0948-XX-0002"
+    address:"飯塚市穂波エリア（仮）", distanceKm:1.5, phone:"0948-XX-0002",
+    lat:33.6290, lng:130.6700
   },
   {
     id:3, name:"ひまわり介護センター",
@@ -504,7 +559,8 @@ const FACILITIES = [
     accepts:["要介護3","要介護4","要介護5"],
     vacancy:"要問合せ", costMin:10, costMax:15,
     services:["食事提供","入浴介助","看護師常駐"], transport:false,
-    address:"飯塚市幸袋エリア（仮）", distanceKm:4.1, phone:"0948-XX-0003"
+    address:"飯塚市幸袋エリア（仮）", distanceKm:4.1, phone:"0948-XX-0003",
+    lat:33.6550, lng:130.6650
   },
   {
     id:4, name:"あすなろ在宅支援ホーム",
@@ -512,7 +568,8 @@ const FACILITIES = [
     accepts:["要支援2","要介護1","要介護2","要介護3"],
     vacancy:"なし", costMin:12, costMax:18,
     services:["食事提供","入浴介助","機能訓練","送迎"], transport:true,
-    address:"飯塚市鎮西エリア（仮）", distanceKm:3.0, phone:"0948-XX-0004"
+    address:"飯塚市鎮西エリア（仮）", distanceKm:3.0, phone:"0948-XX-0004",
+    lat:33.6390, lng:130.7050
   },
   {
     id:5, name:"つばさデイサービスセンター",
@@ -520,7 +577,8 @@ const FACILITIES = [
     accepts:["要支援1","要支援2","要介護1"],
     vacancy:"あり", costMin:2, costMax:4,
     services:["送迎","レクリエーション","口腔ケア"], transport:true,
-    address:"飯塚市庄内エリア（仮）", distanceKm:5.2, phone:"0948-XX-0005"
+    address:"飯塚市庄内エリア（仮）", distanceKm:5.2, phone:"0948-XX-0005",
+    lat:33.6100, lng:130.7250
   },
   {
     id:6, name:"みのりの家 頴田",
@@ -528,7 +586,8 @@ const FACILITIES = [
     accepts:["要介護2","要介護3","要介護4","要介護5"],
     vacancy:"あり", costMin:9, costMax:13,
     services:["食事提供","看護師常駐","機能訓練"], transport:true,
-    address:"飯塚市頴田エリア（仮）", distanceKm:6.8, phone:"0948-XX-0006"
+    address:"飯塚市頴田エリア（仮）", distanceKm:6.8, phone:"0948-XX-0006",
+    lat:33.6700, lng:130.7400
   },
 ];
 
@@ -639,6 +698,7 @@ function renderResults(levelId){
 
   if(filtered.length===0){
     list.innerHTML = `<div class="no-result">条件に合う施設が見つかりませんでした。「まだ認定を受けていない」ボタンで全件を見ることもできます。</div>`;
+    document.getElementById("mapSection").style.display = "none";
     return;
   }
 
@@ -647,6 +707,9 @@ function renderResults(levelId){
   filtered.forEach(f=>{
     document.getElementById(`fav-${f.id}`).addEventListener("click", ()=>toggleFavorite(f.id));
   });
+
+  document.getElementById("mapSection").style.display = "block";
+  showFacilitiesOnMap(filtered);
 }
 
 function vacancyBadgeClass(v){
@@ -739,6 +802,135 @@ function openCompareModal(){
 }
 function closeCompareModal(){
   document.getElementById("modalOverlay").classList.remove("show");
+}
+
+/* ---------- Google Maps 連携 ---------- */
+let map, directionsService, directionsRenderer, currentMarkers = [];
+let userLocation = null; // {lat,lng}
+const IIZUKA_CITY_HALL = {lat:33.6459, lng:130.6912}; // フォールバック用の代表地点
+
+function accessScore(f){
+  // アクセススコアの簡易算出（テスト版）：距離が近く送迎ありなら高スコア
+  let score = 100 - f.distanceKm * 8;
+  if(f.transport) score += 10;
+  return Math.max(0, Math.min(100, score));
+}
+function scoreColor(score){
+  if(score >= 65) return "#2F8C4A";
+  if(score >= 40) return "#E38A3D";
+  return "#C65B4E";
+}
+
+function loadGoogleMapsScript(){
+  return new Promise((resolve, reject)=>{
+    if(window.google && window.google.maps){ resolve(); return; }
+    if(!window.GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY.includes("ここに")){
+      reject(new Error("APIキー未設定"));
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = ()=>reject(new Error("読み込み失敗"));
+    document.head.appendChild(script);
+  });
+}
+
+async function showFacilitiesOnMap(facilities){
+  const mapEl = document.getElementById("map");
+  try{
+    await loadGoogleMapsScript();
+  }catch(e){
+    mapEl.innerHTML = `<div class="no-result">地図を表示できませんでした。config.js にGoogle Maps APIキーが設定されているか確認してください。</div>`;
+    return;
+  }
+
+  if(!map){
+    map = new google.maps.Map(mapEl, {
+      center: IIZUKA_CITY_HALL,
+      zoom: 12,
+      disableDefaultUI:false,
+      mapTypeControl:false,
+      streetViewControl:false,
+    });
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({map});
+
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos=>{ userLocation = {lat:pos.coords.latitude, lng:pos.coords.longitude}; },
+        ()=>{ userLocation = null; }
+      );
+    }
+  }
+
+  currentMarkers.forEach(m=>m.setMap(null));
+  currentMarkers = [];
+
+  const bounds = new google.maps.LatLngBounds();
+  facilities.forEach(f=>{
+    const score = accessScore(f);
+    const marker = new google.maps.Marker({
+      position:{lat:f.lat, lng:f.lng},
+      map,
+      title:f.name,
+      icon:{
+        path: google.maps.SymbolPath.CIRCLE,
+        scale:9,
+        fillColor: scoreColor(score),
+        fillOpacity:1,
+        strokeColor:"#ffffff",
+        strokeWeight:2,
+      }
+    });
+    const info = new google.maps.InfoWindow({
+      content: `
+        <div style="font-family:sans-serif; font-size:14px; min-width:180px;">
+          <div style="font-weight:700; margin-bottom:6px;">${f.name}</div>
+          <div style="color:#555; margin-bottom:8px;">${f.address}</div>
+          <button id="route-btn-${f.id}" style="background:#0F6656;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;">現在地からのバスルートを見る</button>
+        </div>
+      `
+    });
+    marker.addListener("click", ()=>{
+      info.open(map, marker);
+      google.maps.event.addListenerOnce(info, "domready", ()=>{
+        document.getElementById(`route-btn-${f.id}`).addEventListener("click", ()=>showRoute(f));
+      });
+    });
+    currentMarkers.push(marker);
+    bounds.extend(marker.getPosition());
+  });
+
+  if(facilities.length>0) map.fitBounds(bounds);
+}
+
+function showRoute(facility){
+  const origin = userLocation || IIZUKA_CITY_HALL;
+  const routeInfo = document.getElementById("routeInfo");
+  routeInfo.classList.add("show");
+  routeInfo.textContent = "ルートを検索しています…";
+
+  directionsService.route({
+    origin,
+    destination: {lat:facility.lat, lng:facility.lng},
+    travelMode: google.maps.TravelMode.TRANSIT,
+  }, (result, status)=>{
+    if(status === "OK"){
+      directionsRenderer.setDirections(result);
+      const leg = result.routes[0].legs[0];
+      routeInfo.innerHTML = `
+        <strong>${facility.name}</strong> までのバスルート<br>
+        所要時間の目安：${leg.duration.text}／距離：${leg.distance.text}
+        ${!userLocation ? "<br><span style='font-size:12px;color:#888;'>※現在地が取得できなかったため、飯塚市役所を出発地点にしています。</span>" : ""}
+      `;
+    } else if(status === "ZERO_RESULTS"){
+      routeInfo.innerHTML = "この区間の公共交通ルートが見つかりませんでした。徒歩・車での経路をご検討ください。";
+    } else {
+      routeInfo.innerHTML = "ルートの取得に失敗しました。しばらくしてから再度お試しください。";
+    }
+  });
 }
 </script>
 </body>
