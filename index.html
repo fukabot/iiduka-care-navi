@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+<title>医療・介護アクセスナビ｜介護施設検索</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F8F6;
+    --surface:#FFFFFF;
+    --surface-2:#EFF4F1;
+    --ink:#1E2A28;
+    --ink-soft:#516560;
+    --primary:#0F6656;
+    --primary-dark:#0A4B3F;
+    --primary-tint:#E3F1EC;
+    --accent:#E38A3D;
+    --accent-tint:#FCEAD6;
+    --success:#2F8C4A;
+    --success-tint:#E6F4E9;
+    --danger:#C65B4E;
+    --danger-tint:#FBEAE7;
+    --border:#DFE7E3;
+    --shadow: 0 2px 10px rgba(15,102,86,0.08), 0 1px 2px rgba(15,102,86,0.06);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans JP", sans-serif;
+    font-size:18px;
+    line-height:1.7;
+    padding-bottom:110px;
+  }
+  h1,h2,h3,.display{
+    font-family:"Zen Maru Gothic", sans-serif;
+    color:var(--primary-dark);
+    margin:0;
+  }
+  button{font-family:inherit;}
+  .wrap{max-width:820px;margin:0 auto;padding:0 14px;}
+
+  /* Header */
+  header{
+    background:linear-gradient(155deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color:#fff;
+    padding:28px 14px 34px;
+    border-radius:0 0 28px 28px;
+    box-shadow:var(--shadow);
+  }
+  header .eyebrow{
+    font-size:14px;
+    letter-spacing:.06em;
+    opacity:.85;
+    font-weight:500;
+  }
+  header h1{
+    color:#fff;
+    font-size:28px;
+    font-weight:900;
+    margin-top:6px;
+    line-height:1.4;
+  }
+  header p{
+    margin-top:10px;
+    font-size:15px;
+    opacity:.92;
+    max-width:46em;
+  }
+
+  section{padding:28px 0;}
+  section + section{border-top:1px solid var(--border);}
+
+  .section-title{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .section-title .num{
+    font-family:"Zen Maru Gothic", sans-serif;
+    font-weight:900;
+    font-size:15px;
+    color:#fff;
+    background:var(--primary);
+    width:30px;height:30px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex:none;
+  }
+  .section-title h2{font-size:20px;}
+  .section-hint{color:var(--ink-soft); font-size:15px; margin:0 0 18px 40px;}
+
+  /* Care level scale */
+  .level-scale{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+  }
+  .level-btn{
+    border:2px solid var(--border);
+    background:var(--surface);
+    border-radius:14px;
+    padding:14px 6px;
+    text-align:center;
+    cursor:pointer;
+    font-weight:700;
+    font-size:16px;
+    color:var(--ink);
+    min-height:56px;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .level-btn:active{transform:scale(0.97);}
+  .level-btn[data-severity="1"]{ background:#F2F8F5; }
+  .level-btn[data-severity="2"]{ background:#E3F1EC; }
+  .level-btn[data-severity="3"]{ background:#CDE8DC; }
+  .level-btn[data-severity="4"]{ background:#AADCC3; }
+  .level-btn[data-severity="5"]{ background:#7FCCA6; color:#0A4B3F;}
+  .level-btn[data-severity="6"]{ background:#57BB8C; color:#fff;}
+  .level-btn[data-severity="7"]{ background:#2FA873; color:#fff;}
+  .level-btn.selected{
+    outline:3px solid var(--accent);
+    outline-offset:2px;
+    box-shadow:var(--shadow);
+  }
+  .explain-toggle{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--primary-tint);
+    border:1px solid #CFE6DC;
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:15px;
+    font-weight:700;
+    color:var(--primary-dark);
+    cursor:pointer;
+    margin-bottom:14px;
+    min-height:52px;
+  }
+  .explain-arrow{
+    transition:transform .15s ease;
+    font-size:12px;
+  }
+  .explain-toggle[aria-expanded="true"] .explain-arrow{transform:rotate(180deg);}
+  .explain-panel{
+    display:none;
+    background:var(--primary-tint);
+    border:1px solid #CFE6DC;
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:16px;
+  }
+  .explain-panel.show{display:block;}
+  .explain-lead{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0 0 12px;
+  }
+  .explain-list{margin:0;}
+  .explain-list .row{
+    display:flex;
+    gap:12px;
+    padding:9px 0;
+    border-top:1px solid #CFE6DC;
+    align-items:baseline;
+  }
+  .explain-list .row:first-child{border-top:none;}
+  .explain-list dt{
+    flex:none;
+    width:78px;
+    font-weight:700;
+    color:var(--primary-dark);
+    font-size:14px;
+  }
+  .explain-list dd{
+    margin:0;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .explain-note{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:12px 0 0;
+    padding-top:10px;
+    border-top:1px solid #CFE6DC;
+  }
+  .level-unknown{
+    margin-top:10px;
+    width:100%;
+    border:2px dashed #A9C4BB;
+    background:transparent;
+    border-radius:14px;
+    padding:14px;
+    font-size:15px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    min-height:52px;
+  }
+
+  /* Subsidy panel */
+  .subsidy-panel{
+    display:none;
+    background:var(--accent-tint);
+    border:1px solid #F1CFA0;
+    border-radius:var(--radius);
+    padding:20px;
+    margin-top:18px;
+  }
+  .subsidy-panel.show{display:block;}
+  .subsidy-panel h3{
+    font-size:17px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#7A4A16;
+  }
+  .subsidy-list{list-style:none; margin:12px 0 0; padding:0;}
+  .subsidy-list li{
+    padding:10px 0;
+    border-top:1px solid #F1CFA0;
+    font-size:15px;
+  }
+  .subsidy-list li:first-child{border-top:none;}
+  .subsidy-name{font-weight:700; display:block; color:var(--ink);}
+  .subsidy-desc{color:var(--ink-soft); font-size:14px; margin-top:2px;}
+  .subsidy-note{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px solid #F1CFA0;
+  }
+
+  /* Result cards */
+  .result-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+  .sample-badge{
+    background:var(--surface-2);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:3px 10px;
+    border-radius:999px;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px;
+    margin-bottom:14px;
+    box-shadow:var(--shadow);
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .card-title{font-size:18px; font-weight:700; color:var(--ink);}
+  .card-type{font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .fav-btn{
+    border:none;
+    background:var(--surface-2);
+    width:44px;height:44px;
+    border-radius:12px;
+    font-size:20px;
+    flex:none;
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .fav-btn.active{
+    background:var(--accent);
+    color:#fff;
+  }
+  .badge-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+  }
+  .badge{
+    font-size:13px;
+    padding:5px 11px;
+    border-radius:999px;
+    background:var(--surface-2);
+    color:var(--ink-soft);
+  }
+  .badge.vacancy-yes{background:var(--success-tint); color:var(--success); font-weight:700;}
+  .badge.vacancy-no{background:var(--danger-tint); color:var(--danger); font-weight:700;}
+  .badge.vacancy-ask{background:var(--accent-tint); color:#8A5A1E; font-weight:700;}
+  .card-facts{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 16px;
+    margin-top:14px;
+    font-size:14px;
+  }
+  .fact-label{color:var(--ink-soft); font-size:12px;}
+  .fact-value{font-weight:700; margin-top:2px;}
+  .no-result{
+    text-align:center;
+    color:var(--ink-soft);
+    padding:40px 20px;
+    background:var(--surface);
+    border-radius:var(--radius);
+    border:1px dashed var(--border);
+  }
+
+  /* Favorites bottom bar */
+  .fav-bar{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    background:var(--primary-dark);
+    color:#fff;
+    padding:14px 20px;
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    box-shadow:0 -4px 16px rgba(0,0,0,.15);
+    z-index:20;
+  }
+  .fav-bar.show{display:flex;}
+  .fav-bar-text{font-size:15px; font-weight:700;}
+  .fav-bar button{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    padding:12px 20px;
+    font-weight:700;
+    font-size:15px;
+    min-height:48px;
+    cursor:pointer;
+  }
+
+  /* Modal */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,20,18,.55);
+    display:none;
+    align-items:flex-end;
+    z-index:30;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal{
+    background:var(--surface);
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+    border-radius:24px 24px 0 0;
+    padding:22px 20px 30px;
+  }
+  .modal-head{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:16px;
+  }
+  .modal-close{
+    border:none;background:var(--surface-2);
+    width:40px;height:40px;border-radius:10px;
+    font-size:18px; cursor:pointer; color:var(--ink-soft);
+  }
+  .compare-table{width:100%; border-collapse:collapse; font-size:14px;}
+  .compare-table th, .compare-table td{
+    border:1px solid var(--border);
+    padding:9px 8px;
+    text-align:left;
+    vertical-align:top;
+  }
+  .compare-table th{background:#D6E9E0; color:var(--primary-dark); font-size:12px; font-weight:700;}
+  .compare-table td.name-cell{font-weight:700; background:var(--primary-tint);}
+  .empty-compare{color:var(--ink-soft); font-size:15px; padding:20px 0;}
+
+  footer{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:13px;
+    padding:24px 20px 8px;
+  }
+
+  /* Map section */
+  #map{
+    width:100%;
+    height:340px;
+    border-radius:var(--radius);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+  }
+  .map-legend{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .map-legend span{display:flex; align-items:center; gap:6px;}
+  .dot{width:12px;height:12px;border-radius:50%; display:inline-block;}
+  .dot-good{background:#2F8C4A;}
+  .dot-mid{background:#E38A3D;}
+  .dot-weak{background:#C65B4E;}
+  .route-info{
+    margin-top:14px;
+    font-size:14px;
+    color:var(--ink);
+    display:none;
+  }
+  .route-info.show{
+    display:block;
+    background:var(--primary-tint);
+    border:1px solid #CFE6DC;
+    border-radius:14px;
+    padding:14px 16px;
+  }
+  .map-note{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:10px;
+  }
+
+  @media (min-width:600px){
+    body{font-size:19px;}
+    .level-scale{grid-template-columns:repeat(7,1fr);}
+    header h1{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">飯塚スマートアプリコンテスト2026</div>
+    <h1>医療・介護アクセスナビ</h1>
+    <p>要介護度を選ぶだけで、入所できる施設と使える支援金をまとめて確認できます。</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="section-title"><span class="num">1</span><h2>要介護度を選ぶ</h2></div>
+    <p class="section-hint">認定を受けている場合はその区分を、まだの場合や分からない場合は下のボタンからどうぞ。</p>
+
+    <button class="explain-toggle" id="explainToggle" type="button" aria-expanded="false">
+      <span>❓ 要支援・要介護ってなに？</span>
+      <span class="explain-arrow" id="explainArrow">▼</span>
+    </button>
+    <div class="explain-panel" id="explainPanel">
+      <p class="explain-lead">数字が大きいほど、日常生活で必要な介助の度合いが大きいことを表します。あくまで目安です。正式な区分は、市区町村の認定調査を受けて決まります。</p>
+      <dl class="explain-list" id="explainList"></dl>
+      <p class="explain-note">正確な区分を知りたい場合は、お住まいの地域包括支援センターや市区町村の介護保険担当窓口にご相談ください。</p>
+    </div>
+
+    <div class="level-scale" id="levelScale"></div>
+    <button class="level-unknown" id="unknownBtn" type="button">まだ認定を受けていない／わからない（すべての施設を見る）</button>
+
+    <div class="subsidy-panel" id="subsidyPanel">
+      <h3 id="subsidyTitle">💰 使える可能性がある支援金・助成制度</h3>
+      <ul class="subsidy-list" id="subsidyList"></ul>
+      <div class="subsidy-note">
+        表示は目安です。所得状況や世帯構成により対象外となる場合があります。詳しくは飯塚市高齢者支援課（0948-22-5500）へお問い合わせください。
+      </div>
+    </div>
+  </section>
+
+  <section id="resultsSection" style="display:none;">
+    <div class="section-title"><span class="num">2</span><h2>入所できる施設</h2></div>
+    <p class="section-hint">費用は自己負担割合（1〜3割）や要介護度、居室タイプ、所得区分により変わります。表示額はあくまで目安です。</p>
+    <div class="result-meta">
+      <span id="resultCount">0件見つかりました</span>
+      <span class="sample-badge">※厚労省オープンデータ（2026年6月末時点）より作成</span>
+    </div>
+    <div id="resultList"></div>
+  </section>
+
+  <section id="mapSection" style="display:none;">
+    <div class="section-title"><span class="num">3</span><h2>地図で見る・ルート案内</h2></div>
+    <p class="section-hint">マーカーの色は、交通アクセスの目安（緑＝アクセス良好、赤＝弱い）を表しています。マーカーをタップすると、現在地からのバスルートを表示できます。</p>
+    <div class="map-legend">
+      <span><i class="dot dot-good"></i>アクセス良好</span>
+      <span><i class="dot dot-mid"></i>ふつう</span>
+      <span><i class="dot dot-weak"></i>アクセス弱め</span>
+    </div>
+    <div id="map"></div>
+    <div id="routeInfo" class="route-info"></div>
+  </section>
+
+</div>
+
+<div class="fav-bar" id="favBar">
+  <span class="fav-bar-text"><span id="favCount">0</span>件を比較リストに追加中</span>
+  <button id="openCompare" type="button">比較する</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 style="font-size:19px;">家族向け比較ビュー</h2>
+      <button class="modal-close" id="closeModal" type="button">✕</button>
+    </div>
+    <div id="compareContent"></div>
+  </div>
+</div>
+
+<footer>医療・介護アクセスナビ（第15回 e-ZUKAスマートアプリコンテスト2026 応募作品・開発中）</footer>
+
+<script src="config.js"></script>
+<script>
+/* ---------- データ（厚生労働省「介護サービス情報の公表システム」オープンデータ、2026年6月末時点、飯塚市分） ---------- */
+const CARE_LEVELS = [
+  {id:"要支援1", label:"要支援1", severity:1,
+    desc:"日常生活の基本動作はほぼ自分でできるが、一部に見守りや手助けがあると安心な状態。"},
+  {id:"要支援2", label:"要支援2", severity:2,
+    desc:"要支援1より動作の低下が見られ、掃除や買い物など一部の生活動作に部分的な介助が必要な状態。"},
+  {id:"要介護1", label:"要介護1", severity:3,
+    desc:"立ち上がりや歩行が不安定になり始め、身の回りの世話に一部介助が必要な状態。"},
+  {id:"要介護2", label:"要介護2", severity:4,
+    desc:"要介護1よりさらに動作能力が低下し、食事や排せつなどにも部分的な介助が必要になる状態。"},
+  {id:"要介護3", label:"要介護3", severity:5,
+    desc:"立ち上がりや歩行が自力では難しく、日常生活の多くの場面で全面的な介助が必要な状態。"},
+  {id:"要介護4", label:"要介護4", severity:6,
+    desc:"日常生活を送る能力がさらに低下し、ほぼ全面的な介助が必要な状態。"},
+  {id:"要介護5", label:"要介護5", severity:7,
+    desc:"ほぼ寝たきりの状態で、食事・排せつ・移動など生活全般で全面的な介助が必要な状態。"},
+];
+
+const FACILITIES = [
+  {
+    id:1, name:"特別養護老人ホーム太陽の郷",
+    types:["特別養護老人ホーム","ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）","1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市下三緒６９０番地", distanceKm:1.7, phone:"0948-25-7789",
+    url:"http://taiyonosato.jp/", lat:33.6328812, lng:130.7012611
+  },
+  {
+    id:2, name:"特別養護老人ホーム本陣園",
+    types:["特別養護老人ホーム","ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:50,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）","1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市長尾884番地1", distanceKm:9.0, phone:"0948-72-3777",
+    url:"https://care-net.biz/40/honjinen/", lat:33.57520808800476, lng:130.64404763315733
+  },
+  {
+    id:3, name:"特別養護老人ホーム多田の里愛夢",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:30,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市多田309番地11", distanceKm:4.7, phone:"0948-20-4031",
+    url:"http://tadanosato.jp/", lat:33.6439695, lng:130.74199739999995
+  },
+  {
+    id:4, name:"特別養護老人ホーム多田の里",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:40,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市多田309番地11", distanceKm:4.7, phone:"0948-20-4031",
+    url:"http://tadanosato.jp/", lat:33.6439695, lng:130.74199739999995
+  },
+  {
+    id:5, name:"特別養護老人ホーム 第二いずみ苑",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:58,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市庄司2003番地4", distanceKm:4.1, phone:"0948-23-5778",
+    url:"http://www.izumifukushikai.com/", lat:33.67301285623682, lng:130.6613986786209
+  },
+  {
+    id:6, name:"第二いずみ苑(ユニット）",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:40,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市庄司2003番地4", distanceKm:4.1, phone:"0948-23-5778",
+    url:"http://www.izumifukusikai.com/", lat:33.67301602475157, lng:130.66141438413092
+  },
+  {
+    id:7, name:"特別養護老人ホーム かいた苑",
+    types:["特別養護老人ホーム","ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）","1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市勢田２５９３番地６５", distanceKm:7.2, phone:"0948-92-5211",
+    url:null, lat:33.7037573, lng:130.72707590000005
+  },
+  {
+    id:8, name:"特別養護老人ホーム 筑穂桜の園",
+    types:["特別養護老人ホーム","ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:30,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）","1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市長尾1428番地1", distanceKm:9.3, phone:"0948‐72‐3120",
+    url:"http://www.iizuka-shakyo.net", lat:33.5728473, lng:130.64303719999998
+  },
+  {
+    id:9, name:"特別養護老人ホーム つばき苑",
+    types:["特別養護老人ホーム","ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）","1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市椿623番地8", distanceKm:4.7, phone:"0948-23-2121",
+    url:"https://tbk-en.jp", lat:33.6190342, lng:130.65212659999997
+  },
+  {
+    id:10, name:"特別養護老人ホーム はくりゅう園",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市綱分192番地1", distanceKm:4.7, phone:"0948-82-2420",
+    url:"http://www.hakuryuen.net/", lat:33.62798919211531, lng:130.73722249950558
+  },
+  {
+    id:11, name:"特別養護老人ホームいいづか",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:50,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市花瀬157番地1", distanceKm:3.0, phone:"0948-29-5850",
+    url:"http://iihokai.com", lat:33.6422154, lng:130.65925029999994
+  },
+  {
+    id:12, name:"社会福祉法人 特別養護老人ホーム サミック飯塚",
+    types:["特別養護老人ホーム","ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:50,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）","1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市太郎丸712番地1", distanceKm:5.0, phone:"0948-43-9462",
+    url:"https://summick.or.jp/iizuka/", lat:33.6047062, lng:130.6689434
+  },
+  {
+    id:13, name:"特別養護老人ホーム くぬぎ苑",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:70,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市相田１１４－１", distanceKm:3.0, phone:"0948-24-8000",
+    url:"http://kunugien.com/", lat:33.6570109, lng:130.66178020000007
+  },
+  {
+    id:14, name:"特別養護老人ホーム 天空の杜",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市平恒181-1", distanceKm:3.9, phone:"0948-26-1165",
+    url:"http://www.9-10.jp", lat:33.611422, lng:130.68668279999997
+  },
+  {
+    id:15, name:"特別養護老人ホーム 天寿園",
+    types:["特別養護老人ホーム"],
+    accepts:["要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:50,
+    services:[], costNotes:["月額 目安5〜15万円（自己負担1割の場合。要介護度・居室タイプ・所得により変動）"],
+    address:"福岡県飯塚市高田167番地", distanceKm:7.4, phone:"0948-25-3456",
+    url:null, lat:33.5955504, lng:130.63898130000007
+  },
+  {
+    id:16, name:"デイサービスセンター エルム",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市明星寺45番地1", distanceKm:5.0, phone:"0948-22-3476",
+    url:"http://r.goope.jp/elm/", lat:33.62293090000001, lng:130.6450549
+  },
+  {
+    id:17, name:"デイサービス ハレレア",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市下三緒435－1", distanceKm:1.6, phone:"0948-52-7057",
+    url:null, lat:33.6342503, lng:130.701159
+  },
+  {
+    id:18, name:"通所介護すずらん",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:7,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市綱分933番地6", distanceKm:4.4, phone:"0948-31-1055",
+    url:null, lat:33.632515, lng:130.73612830000002
+  },
+  {
+    id:19, name:"デイサービスみのりの丘",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市鹿毛馬１６５３番地７", distanceKm:5.3, phone:"0948-92-3311",
+    url:null, lat:33.6825065, lng:130.72832040000003
+  },
+  {
+    id:20, name:"生活介護 にじいろｓｍｉｌｅ",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市小正１６７－３", distanceKm:3.2, phone:"0948-43-8211",
+    url:"https://nijiirosmile.tkc.best-hp.jp", lat:33.6256771, lng:130.66589420000003
+  },
+  {
+    id:21, name:"有限会社ウエフ デイサービスセンターおとひめ",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:40,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市下三緒47番地１", distanceKm:2.0, phone:"0948-26-0303",
+    url:null, lat:33.633113674962644, lng:130.70569618200227
+  },
+  {
+    id:22, name:"デイサービスセンターいずみの森",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市庄司１９４１番地１", distanceKm:4.1, phone:"0948-21-1785",
+    url:"http://www.izumifukushikai.com", lat:33.67337748742933, lng:130.66185449259035
+  },
+  {
+    id:23, name:"デイサービスセンターいずみ",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市庄司1878番地2", distanceKm:4.2, phone:"0948-21-1773",
+    url:"http://www.izumifukushikai.com/", lat:33.6733983, lng:130.6607375
+  },
+  {
+    id:24, name:"デイサービスセンター わかな",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:45,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市小正21-6", distanceKm:3.2, phone:"0948-26-0155",
+    url:null, lat:33.6249757, lng:130.66808070000002
+  },
+  {
+    id:25, name:"つばき苑デイサービスセンター",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市椿682番地", distanceKm:4.7, phone:"0948-23-2121",
+    url:"http://tbk-en.jp", lat:33.6190342, lng:130.65212659999997
+  },
+  {
+    id:26, name:"太陽の郷 デイサ－ビスセンタ－",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:35,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市下三緒690", distanceKm:1.7, phone:"0948-25-7789",
+    url:"http//taiyonosato.jp", lat:33.6328812, lng:130.7012611
+  },
+  {
+    id:27, name:"デイサービスセンター希望",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市南尾1番地96", distanceKm:2.9, phone:"０９４８－４３－９１１２",
+    url:null, lat:33.61973982528914, lng:130.69602996929223
+  },
+  {
+    id:28, name:"瑞穂の郷デイサービスセンター",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:35,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市大分１５４番地１", distanceKm:8.8, phone:"0948-72-5666",
+    url:"http://www.honjinen.com", lat:33.5820684, lng:130.63516260000006
+  },
+  {
+    id:29, name:"東ヶ丘デイサービスセンター",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:35,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市下三緒35番地442", distanceKm:2.0, phone:"0948-23-4065",
+    url:"best-fukushi.co.jp", lat:33.6376696, lng:130.71062699999993
+  },
+  {
+    id:30, name:"デイサービスはなみずき",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:35,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市相田574-1", distanceKm:3.5, phone:"0948-21-8731",
+    url:"http://lifepartner-iizuka.com/", lat:33.6629935, lng:130.65956630000005
+  },
+  {
+    id:31, name:"デイサービスセンター多田の里",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市多田309番地11", distanceKm:4.7, phone:"0948-20-4032",
+    url:"http://satoh-group.or.jp/tada/", lat:33.6439695, lng:130.74199739999995
+  },
+  {
+    id:32, name:"リハビリデイサービス サンライズ",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市阿恵384-4", distanceKm:9.6, phone:"0948-72-3111",
+    url:null, lat:33.5681902, lng:130.6461465
+  },
+  {
+    id:33, name:"デイサービスセンター向陽",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"飯塚市上三緒887番地1", distanceKm:2.7, phone:"0948-21-6777",
+    url:null, lat:33.6304648, lng:130.71321030000001
+  },
+  {
+    id:34, name:"デイサービスゆう",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"太郎丸934番地", distanceKm:4.4, phone:"0948-26-5670",
+    url:null, lat:33.61062020650337, lng:130.67043084491422
+  },
+  {
+    id:35, name:"歩きの相談所",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市綱分1523－1", distanceKm:3.4, phone:"0948-43-3228",
+    url:null, lat:33.6308305, lng:130.7228472
+  },
+  {
+    id:36, name:"デイサービスウェル飯塚",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"吉原町11‐21", distanceKm:0.8, phone:"0948‐21‐7102",
+    url:null, lat:33.64039, lng:130.6862136
+  },
+  {
+    id:37, name:"デイサービスくぬぎ苑",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市相田114-1", distanceKm:3.0, phone:"0948-24-8000",
+    url:"http://kunugien.com/new/", lat:33.6570109, lng:130.66178020000007
+  },
+  {
+    id:38, name:"アップルハート柏の森デイサービスセンター",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市柏の森大谷１１－４", distanceKm:1.9, phone:"0948-22-2562",
+    url:"http://www.aso-group.co.jp/ams", lat:33.64059710000001, lng:130.71085749999997
+  },
+  {
+    id:39, name:"アフィニティーつつじの丘 デイサービス",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市横田823番地1", distanceKm:2.2, phone:"0948－21－0501",
+    url:"https://f-shinwakai.or.jp/", lat:33.6437548, lng:130.6676749
+  },
+  {
+    id:40, name:"りはぷるデイサービスセンター",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:23,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市佐與1396-7", distanceKm:4.4, phone:"0948-92-3055",
+    url:"http://rehaproday.improboth.com/", lat:33.6774179, lng:130.7192126
+  },
+  {
+    id:41, name:"医療法人社団 親和会 デイサービスきんもくせい頴田",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:50,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市口原347-1", distanceKm:5.0, phone:"0948-92-5112",
+    url:"http://f-shinwakai.or.jp/", lat:33.68401376342206, lng:130.71925197182773
+  },
+  {
+    id:42, name:"デイサービス すこやかの里",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市下三緒35-664", distanceKm:2.1, phone:"0948-23-9028",
+    url:null, lat:33.63667810000515, lng:130.71094677399583
+  },
+  {
+    id:43, name:"デイサービスセンター ごんげん堂",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市勢田２５９３番地６５", distanceKm:7.2, phone:"0948-92-7878",
+    url:null, lat:33.7037573, lng:130.72707590000005
+  },
+  {
+    id:44, name:"良創夢リハビリの森デイサービスセンター",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市忠隈394番地5", distanceKm:2.8, phone:"0948-21-2668",
+    url:"http://www.rasoumu.co.jp/", lat:33.62141490108471, lng:130.68380800674592
+  },
+  {
+    id:45, name:"デイサービスセンター 榎の里",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市赤坂580-4", distanceKm:5.1, phone:"0948-82-1000",
+    url:"http://hakuryuen.net", lat:33.618244, lng:130.73545060000004
+  },
+  {
+    id:46, name:"デイサービス きこり",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"飯塚市有安６２８番地３", distanceKm:3.7, phone:"0948-80-1057",
+    url:null, lat:33.649156430166165, lng:130.73055693862307
+  },
+  {
+    id:47, name:"医療法人 夢結 良創夢デイサービスセンター飯塚店",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:60,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市鯰田2425番地206", distanceKm:1.3, phone:"0948-22-1753",
+    url:"https://www.yumemusubi.jp", lat:33.6558841, lng:130.69827740000005
+  },
+  {
+    id:48, name:"社会福祉法人飯塚市社会福祉協議会筑穂支所保健福祉総合センター通所介護事業所",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:50,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市長尾９１１－１", distanceKm:9.1, phone:"0948-72-3153",
+    url:null, lat:33.5734806, lng:130.6445509
+  },
+  {
+    id:49, name:"デイサービス レモンの木",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"中１０７９番地", distanceKm:3.2, phone:"０９４８　２２－２６８８",
+    url:null, lat:33.6711208, lng:130.67526199999998
+  },
+  {
+    id:50, name:"シニアコミュニティーつばき",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"飯塚市若菜256番地77", distanceKm:2.7, phone:"0948-29-5366",
+    url:"http://www.humanholdings.jp/", lat:33.62924321914849, lng:130.6701034798547
+  },
+  {
+    id:51, name:"デイサービスセンター結",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"口原1744番地", distanceKm:6.2, phone:"0948-96-2734",
+    url:null, lat:33.69817193478101, lng:130.71522274523008
+  },
+  {
+    id:52, name:"デイサービスセンターいいづか",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:40,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市花瀬157番地1", distanceKm:3.0, phone:"0948-29-5852",
+    url:"iihokai.com", lat:33.64258160705868, lng:130.65889088399194
+  },
+  {
+    id:53, name:"天空の杜デイサービスセンター",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市平恒１８１－１", distanceKm:3.9, phone:"0948-26-1120",
+    url:"http://www.9-10.jp", lat:33.611422, lng:130.68668279999997
+  },
+  {
+    id:54, name:"デイサービスセンター和や家",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市柏の森946-9", distanceKm:0.6, phone:"0948-23-9011",
+    url:"asuanro-f.jp", lat:33.641741, lng:130.694975
+  },
+  {
+    id:55, name:"デイサービス 里",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市太郎丸西平田1036番地1", distanceKm:4.6, phone:"0948-43-3629",
+    url:null, lat:33.6100098, lng:130.66684859999998
+  },
+  {
+    id:56, name:"ローシャルデイサービス飯塚",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:25,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市上三緒46番地1", distanceKm:3.0, phone:"0948-26-4165",
+    url:"https://the-harmony.net/facility/index.html", lat:33.6256542, lng:130.71332210000003
+  },
+  {
+    id:57, name:"わくわく倶楽部デイサービスセンター",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:38,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市内野２１４番地26", distanceKm:11.9, phone:"0948-72-3917",
+    url:"https://www.wakuwaku-iizuka.com/", lat:33.5463861, lng:130.643999
+  },
+  {
+    id:58, name:"デイサービス花",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市綱分１５８９－１", distanceKm:3.8, phone:"0948-82-3011",
+    url:null, lat:33.6307344, lng:130.72798160000002
+  },
+  {
+    id:59, name:"デイサービスenshia",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:5,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市相田581-3", distanceKm:4.4, phone:"0948-43-8011",
+    url:"https://hanamizuki.lifepartner-iizuka.com/2022/11/30/540/", lat:33.6684717, lng:130.6524512
+  },
+  {
+    id:60, name:"機能訓練センター デイサービス大地",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:27,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市目尾786-1", distanceKm:3.4, phone:"0948-25-4333",
+    url:null, lat:33.6754235, lng:130.70198260000006
+  },
+  {
+    id:61, name:"デイサービスセンターあいあい飯塚",
+    types:["デイサービス"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1回あたり目安1,000〜2,000円（自己負担1割の場合。利用回数により月額総額は変動）"],
+    address:"福岡県飯塚市幸袋575-12", distanceKm:1.8, phone:"0948-26-2266",
+    url:"http://aiai-care.com", lat:33.65931779518687, lng:130.67986479325413
+  },
+  {
+    id:62, name:"ショートステイ 天空の杜",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市平恒181-1", distanceKm:3.9, phone:"0948-26-1165",
+    url:"http://www.9-10.jp", lat:33.611422, lng:130.68668279999997
+  },
+  {
+    id:63, name:"多田の里 短期入所生活介護事業所",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市多田309番地11", distanceKm:4.7, phone:"0948-20-4031",
+    url:"http://tadanosato.jp/", lat:33.6439695, lng:130.74199739999995
+  },
+  {
+    id:64, name:"ショートステイ コスモス苑",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:9,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市伊川１２６２番地１", distanceKm:3.5, phone:"0948-25-5600",
+    url:"http://f-shinwakai.or.jp/", lat:33.656483, lng:130.65506419999997
+  },
+  {
+    id:65, name:"第二いずみ苑短期入所施設",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:9,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市庄司2003番地の4", distanceKm:4.1, phone:"0948-23-5778",
+    url:"http://www.izumifukushikai.com/", lat:33.673003927534815, lng:130.66138794978485
+  },
+  {
+    id:66, name:"第二いずみ苑短期入所施設(ユニット)",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市庄司2003-4", distanceKm:4.1, phone:"0948-23-5778",
+    url:"https://izumifukushikai.com/", lat:33.6730004, lng:130.6612809
+  },
+  {
+    id:67, name:"短期入所生活介護 わかつき菰田",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:6,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市菰田115番地2", distanceKm:2.2, phone:"0948-29-0770",
+    url:"http://www.fcom.ne.jp/men/fureai-h", lat:33.6261013, lng:130.69098989999998
+  },
+  {
+    id:68, name:"はくりゅう園ショートステイサービス",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:50,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市綱分192番地1", distanceKm:4.7, phone:"0948-82-2420",
+    url:"http://www.hakuryuen.net/", lat:33.628051725714364, lng:130.737479991571
+  },
+  {
+    id:69, name:"ショートステイいいづか",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:46,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市花瀬157番地の1", distanceKm:3.0, phone:"0948-29-5850",
+    url:"http://iihokai.com/", lat:33.6422154, lng:130.65925029999994
+  },
+  {
+    id:70, name:"ショートステイ くぬぎ苑",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:20,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市相田１１４－１", distanceKm:3.0, phone:"0948-24-8000",
+    url:"http://kunugien.com/new/", lat:33.6570109, lng:130.66178020000007
+  },
+  {
+    id:71, name:"ショートステイ ことぶきの森",
+    types:["ショートステイ"],
+    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["1日あたり目安2,500〜6,000円（自己負担1割の場合。滞在日数により総額は変動）"],
+    address:"福岡県飯塚市鯰田６９６－２１", distanceKm:2.5, phone:"0948-24-5030",
+    url:"www.sayo-fukushikai.or.jp", lat:33.66387479999999, lng:130.70684359999996
+  },
+  {
+    id:72, name:"介護付有料老人ホーム千代",
+    types:["有料老人ホーム"],
+    accepts:["要支援1","要支援2","要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:30,
+    services:[], costNotes:["要問合せ"],
+    address:"福岡県飯塚市小正147番地3", distanceKm:3.5, phone:"0948-23-8052",
+    url:null, lat:33.6255644, lng:130.6627339
+  },
+  {
+    id:73, name:"介護ハウス風の丘",
+    types:["有料老人ホーム"],
+    accepts:["要支援1","要支援2","要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:25,
+    services:[], costNotes:["要問合せ"],
+    address:"福岡県飯塚市有井３５５－１０７", distanceKm:2.7, phone:"0948-82-2122",
+    url:null, lat:33.6477316019339, lng:130.7197904337295
+  },
+  {
+    id:74, name:"ベターライフ・ノア21",
+    types:["有料老人ホーム"],
+    accepts:["要支援1","要支援2","要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:53,
+    services:[], costNotes:["要問合せ"],
+    address:"福岡県飯塚市柏の森11番地1", distanceKm:1.9, phone:"0948-21-0021",
+    url:"http://www.aso-group.co.jp/noah21/", lat:33.6448438, lng:130.71173799999997
+  },
+  {
+    id:75, name:"すまいるホーム三緒",
+    types:["有料老人ホーム"],
+    accepts:["要支援1","要支援2","要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:20,
+    services:[], costNotes:["要問合せ"],
+    address:"福岡県飯塚市上三緒４４５", distanceKm:3.2, phone:"0948-28-5858",
+    url:"https://atoto-you-i.com", lat:33.625568, lng:130.71490189999997
+  },
+  {
+    id:76, name:"介護付有料老人ホームウェルシア",
+    types:["有料老人ホーム"],
+    accepts:["要支援1","要支援2","要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:null,
+    services:[], costNotes:["要問合せ"],
+    address:"福岡県飯塚市鯰田５１６番地１９", distanceKm:3.0, phone:"０９４８－２２－６０００",
+    url:null, lat:33.66662066468324, lng:130.71128700331883
+  },
+  {
+    id:77, name:"介護付有料老人ホームほほえみ",
+    types:["有料老人ホーム"],
+    accepts:["要支援1","要支援2","要介護1","要介護2","要介護3","要介護4","要介護5"],
+    vacancy:"要問合せ", capacity:20,
+    services:[], costNotes:["要問合せ"],
+    address:"福岡県飯塚市勢田173-3", distanceKm:6.6, phone:"0948-96-8222",
+    url:null, lat:33.6910726, lng:130.73675300000002
+  },
+];
+
+/* 補助金・支援金データ（飯塚市公式サイト等の公開情報をもとに作成、テスト表示用） */
+const SUBSIDIES_COMMON = [
+  {name:"高額介護サービス費", desc:"1ヶ月の自己負担合計が上限額を超えた場合、申請により超過分が支給されます（全国共通制度）。"},
+  {name:"高額医療・高額介護合算制度", desc:"医療保険と介護保険の自己負担を合算し、基準額を超えた分が支給されます。"},
+];
+const SUBSIDIES_BY_LEVEL = {
+  low: [ // 要支援1・2
+    {name:"飯塚市高齢者住宅改造助成事業", desc:"住宅を高齢者向けに改修する費用の一部を助成（非課税世帯など条件あり）。"},
+  ],
+  mid: [ // 要介護1・2
+    {name:"飯塚市高齢者住宅改造助成事業", desc:"住宅を高齢者向けに改修する費用の一部を助成（非課税世帯など条件あり）。"},
+    {name:"飯塚市高齢者日常生活用具給付等事業", desc:"電磁調理器・火災警報器などの購入費用の一部を助成。"},
+  ],
+  high: [ // 要介護3以上
+    {name:"介護用品(紙おむつ・尿とりパッド)給付事業", desc:"要介護3以上・非課税世帯を対象に、月額6,000円を上限に給付。"},
+    {name:"飯塚市高齢者日常生活用具給付等事業", desc:"電磁調理器・火災警報器などの購入費用の一部を助成。"},
+    {name:"認知症高齢者等位置検索システム事業", desc:"認知症高齢者の見守り用GPS端末の購入・レンタル費用の一部を助成。"},
+  ],
+  unknown: [
+    {name:"介護保険負担限度額認定", desc:"施設利用時の食費・居住費の負担を軽減（住民税非課税世帯などが対象）。"},
+  ]
+};
+
+/* ---------- 状態 ---------- */
+let selectedLevel = null; // 'unknown' or level id
+let favorites = new Set();
+
+/* ---------- 要介護度スケール描画 ---------- */
+const levelScaleEl = document.getElementById("levelScale");
+CARE_LEVELS.forEach(lv=>{
+  const btn = document.createElement("button");
+  btn.className = "level-btn";
+  btn.type = "button";
+  btn.textContent = lv.label;
+  btn.dataset.severity = lv.severity;
+  btn.dataset.id = lv.id;
+  btn.addEventListener("click", ()=>selectLevel(lv.id));
+  levelScaleEl.appendChild(btn);
+});
+document.getElementById("unknownBtn").addEventListener("click", ()=>selectLevel("unknown"));
+
+/* ---------- 説明パネル ---------- */
+const explainList = document.getElementById("explainList");
+explainList.innerHTML = CARE_LEVELS.map(lv=>`
+  <div class="row">
+    <dt>${lv.label}</dt>
+    <dd>${lv.desc}</dd>
+  </div>
+`).join("");
+
+const explainToggle = document.getElementById("explainToggle");
+const explainPanel = document.getElementById("explainPanel");
+explainToggle.addEventListener("click", ()=>{
+  const isOpen = explainPanel.classList.toggle("show");
+  explainToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+});
+
+function selectLevel(levelId){
+  selectedLevel = levelId;
+  document.querySelectorAll(".level-btn").forEach(b=>{
+    b.classList.toggle("selected", b.dataset.id === levelId);
+  });
+  document.getElementById("unknownBtn").style.outline = levelId==="unknown" ? "3px solid var(--accent)" : "none";
+  renderSubsidies(levelId);
+  renderResults(levelId);
+}
+
+function subsidyGroupFor(levelId){
+  if(levelId==="unknown") return "unknown";
+  if(["要支援1","要支援2"].includes(levelId)) return "low";
+  if(["要介護1","要介護2"].includes(levelId)) return "mid";
+  return "high";
+}
+
+function renderSubsidies(levelId){
+  const panel = document.getElementById("subsidyPanel");
+  const list = document.getElementById("subsidyList");
+  const title = document.getElementById("subsidyTitle");
+  const group = subsidyGroupFor(levelId);
+  const items = [...SUBSIDIES_COMMON, ...(SUBSIDIES_BY_LEVEL[group]||[])];
+  title.textContent = levelId==="unknown"
+    ? "💰 一般的に使える可能性がある支援金・助成制度"
+    : `💰 「${levelId}」で使える可能性がある支援金・助成制度`;
+  list.innerHTML = items.map(it=>`
+    <li>
+      <span class="subsidy-name">${it.name}</span>
+      <span class="subsidy-desc">${it.desc}</span>
+    </li>
+  `).join("");
+  panel.classList.add("show");
+}
+
+/* ---------- 施設検索・絞り込み ---------- */
+function renderResults(levelId){
+  const section = document.getElementById("resultsSection");
+  const list = document.getElementById("resultList");
+  const countEl = document.getElementById("resultCount");
+  section.style.display = "block";
+
+  const filtered = levelId==="unknown"
+    ? FACILITIES
+    : FACILITIES.filter(f=>f.accepts.includes(levelId));
+
+  countEl.textContent = `${filtered.length}件見つかりました`;
+
+  if(filtered.length===0){
+    list.innerHTML = `<div class="no-result">条件に合う施設が見つかりませんでした。「まだ認定を受けていない」ボタンで全件を見ることもできます。</div>`;
+    document.getElementById("mapSection").style.display = "none";
+    return;
+  }
+
+  list.innerHTML = filtered.map(f=>facilityCardHtml(f)).join("");
+
+  filtered.forEach(f=>{
+    document.getElementById(`fav-${f.id}`).addEventListener("click", ()=>toggleFavorite(f.id));
+  });
+
+  document.getElementById("mapSection").style.display = "block";
+  showFacilitiesOnMap(filtered);
+}
+
+function vacancyBadgeClass(v){
+  return "vacancy-ask";
+}
+
+function facilityCardHtml(f){
+  const isFav = favorites.has(f.id);
+  const servicesHtml = f.services.length
+    ? f.services.map(s=>`<span class="badge">${s}</span>`).join("")
+    : `<span class="badge">提供サービスの詳細は施設へお問い合わせください</span>`;
+  return `
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="card-title">${f.name}</div>
+          <div class="card-type">${f.types.join("・")}</div>
+        </div>
+        <button class="fav-btn ${isFav?"active":""}" id="fav-${f.id}" type="button" aria-label="比較リストに追加">${isFav?"★":"☆"}</button>
+      </div>
+      <div class="badge-row">
+        <span class="badge ${vacancyBadgeClass(f.vacancy)}">空き状況：${f.vacancy}</span>
+        ${servicesHtml}
+      </div>
+      <div class="card-facts">
+        <div>
+          <div class="fact-label">費用の目安</div>
+          <div class="fact-value">${f.costNotes.join("／")}</div>
+        </div>
+        <div>
+          <div class="fact-label">定員</div>
+          <div class="fact-value">${f.capacity ? f.capacity + "名" : "非公開"}</div>
+        </div>
+        <div>
+          <div class="fact-label">市役所からの目安距離</div>
+          <div class="fact-value">${f.distanceKm}km</div>
+        </div>
+        <div>
+          <div class="fact-label">所在地</div>
+          <div class="fact-value">${f.address}</div>
+        </div>
+        <div>
+          <div class="fact-label">お問い合わせ</div>
+          <div class="fact-value">${f.phone}</div>
+        </div>
+        ${f.url ? `<div>
+          <div class="fact-label">公式サイト</div>
+          <div class="fact-value"><a href="${f.url}" target="_blank" rel="noopener">サイトを見る</a></div>
+        </div>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- お気に入り／比較 ---------- */
+function toggleFavorite(id){
+  if(favorites.has(id)) favorites.delete(id);
+  else favorites.add(id);
+  renderResults(selectedLevel);
+  updateFavBar();
+}
+
+function updateFavBar(){
+  const bar = document.getElementById("favBar");
+  const count = document.getElementById("favCount");
+  count.textContent = favorites.size;
+  bar.classList.toggle("show", favorites.size>0);
+}
+
+document.getElementById("openCompare").addEventListener("click", openCompareModal);
+document.getElementById("closeModal").addEventListener("click", closeCompareModal);
+document.getElementById("modalOverlay").addEventListener("click", (e)=>{
+  if(e.target.id==="modalOverlay") closeCompareModal();
+});
+
+function openCompareModal(){
+  const content = document.getElementById("compareContent");
+  const items = FACILITIES.filter(f=>favorites.has(f.id));
+  if(items.length===0){
+    content.innerHTML = `<div class="empty-compare">比較したい施設の☆ボタンを押すと、ここに追加されます。</div>`;
+  } else {
+    content.innerHTML = `
+      <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th>施設名</th>${items.map(f=>`<td class="name-cell">${f.name}</td>`).join("")}</tr>
+        <tr><th>種別</th>${items.map(f=>`<td>${f.types.join("・")}</td>`).join("")}</tr>
+        <tr><th>空き状況</th>${items.map(f=>`<td>${f.vacancy}</td>`).join("")}</tr>
+        <tr><th>費用目安</th>${items.map(f=>`<td>${f.costNotes.join("／")}</td>`).join("")}</tr>
+        <tr><th>定員</th>${items.map(f=>`<td>${f.capacity ? f.capacity + "名" : "非公開"}</td>`).join("")}</tr>
+        <tr><th>提供サービス</th>${items.map(f=>`<td>${f.services.length ? f.services.join("・") : "要問い合わせ"}</td>`).join("")}</tr>
+        <tr><th>距離目安</th>${items.map(f=>`<td>${f.distanceKm}km</td>`).join("")}</tr>
+        <tr><th>連絡先</th>${items.map(f=>`<td>${f.phone}</td>`).join("")}</tr>
+      </table>
+      </div>
+    `;
+  }
+  document.getElementById("modalOverlay").classList.add("show");
+}
+function closeCompareModal(){
+  document.getElementById("modalOverlay").classList.remove("show");
+}
+
+/* ---------- Google Maps 連携 ---------- */
+let map, directionsService, directionsRenderer, currentMarkers = [];
+let userLocation = null; // {lat,lng}
+const IIZUKA_CITY_HALL = {lat:33.6459, lng:130.6912}; // フォールバック用の代表地点
+
+function accessScore(f){
+  // アクセススコアの簡易算出（テスト版）：距離が近いほど高スコア
+  const d = f.distanceKm;
+  let score = 100 - d * 8;
+  return Math.max(0, Math.min(100, score));
+}
+function scoreColor(score){
+  if(score >= 65) return "#2F8C4A";
+  if(score >= 40) return "#E38A3D";
+  return "#C65B4E";
+}
+
+function loadGoogleMapsScript(){
+  return new Promise((resolve, reject)=>{
+    if(window.google && window.google.maps){ resolve(); return; }
+    if(typeof GOOGLE_MAPS_API_KEY === "undefined" || !GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY.includes("ここに")){
+      reject(new Error("APIキー未設定"));
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = ()=>reject(new Error("読み込み失敗"));
+    document.head.appendChild(script);
+  });
+}
+
+async function showFacilitiesOnMap(facilities){
+  const mapEl = document.getElementById("map");
+  try{
+    await loadGoogleMapsScript();
+  }catch(e){
+    mapEl.innerHTML = `<div class="no-result">地図を表示できませんでした。config.js にGoogle Maps APIキーが設定されているか確認してください。</div>`;
+    return;
+  }
+
+  if(!map){
+    map = new google.maps.Map(mapEl, {
+      center: IIZUKA_CITY_HALL,
+      zoom: 12,
+      disableDefaultUI:false,
+      mapTypeControl:false,
+      streetViewControl:false,
+    });
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({map});
+
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos=>{ userLocation = {lat:pos.coords.latitude, lng:pos.coords.longitude}; },
+        ()=>{ userLocation = null; }
+      );
+    }
+  }
+
+  currentMarkers.forEach(m=>m.setMap(null));
+  currentMarkers = [];
+
+  const bounds = new google.maps.LatLngBounds();
+  facilities.forEach(f=>{
+    const score = accessScore(f);
+    const marker = new google.maps.Marker({
+      position:{lat:f.lat, lng:f.lng},
+      map,
+      title:f.name,
+      icon:{
+        path: google.maps.SymbolPath.CIRCLE,
+        scale:13,
+        fillColor: scoreColor(score),
+        fillOpacity:1,
+        strokeColor:"#ffffff",
+        strokeWeight:3,
+      }
+    });
+    const info = new google.maps.InfoWindow({
+      content: `
+        <div style="font-family:sans-serif; font-size:14px; min-width:180px;">
+          <div style="font-weight:700; margin-bottom:6px;">${f.name}</div>
+          <div style="color:#555; margin-bottom:8px;">${f.address}</div>
+          <button id="route-btn-${f.id}" style="background:#0F6656;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;">現在地からのバスルートを見る</button>
+        </div>
+      `
+    });
+    marker.addListener("click", ()=>{
+      info.open(map, marker);
+      google.maps.event.addListenerOnce(info, "domready", ()=>{
+        document.getElementById(`route-btn-${f.id}`).addEventListener("click", ()=>showRoute(f));
+      });
+    });
+    currentMarkers.push(marker);
+    bounds.extend(marker.getPosition());
+  });
+
+  if(facilities.length>0) map.fitBounds(bounds);
+}
+
+function showRoute(facility){
+  const origin = userLocation || IIZUKA_CITY_HALL;
+  const routeInfo = document.getElementById("routeInfo");
+  routeInfo.classList.add("show");
+  routeInfo.textContent = "ルートを検索しています…";
+
+  directionsService.route({
+    origin,
+    destination: {lat:facility.lat, lng:facility.lng},
+    travelMode: google.maps.TravelMode.TRANSIT,
+  }, (result, status)=>{
+    if(status === "OK"){
+      directionsRenderer.setDirections(result);
+      const leg = result.routes[0].legs[0];
+      routeInfo.innerHTML = `
+        <strong>${facility.name}</strong> までのバスルート<br>
+        所要時間の目安：${leg.duration.text}／距離：${leg.distance.text}
+        ${!userLocation ? "<br><span style='font-size:12px;color:#888;'>※現在地が取得できなかったため、飯塚市役所を出発地点にしています。</span>" : ""}
+      `;
+    } else if(status === "ZERO_RESULTS"){
+      showRouteFallback(facility, origin, routeInfo);
+    } else {
+      routeInfo.innerHTML = "ルートの取得に失敗しました。しばらくしてから再度お試しください。";
+    }
+  });
+}
+
+function showRouteFallback(facility, origin, routeInfo){
+  routeInfo.textContent = "バス路線が見つからなかったため、車での参考ルートを検索しています…";
+  directionsService.route({
+    origin,
+    destination: {lat:facility.lat, lng:facility.lng},
+    travelMode: google.maps.TravelMode.DRIVING,
+  }, (result, status)=>{
+    if(status === "OK"){
+      directionsRenderer.setDirections(result);
+      const leg = result.routes[0].legs[0];
+      routeInfo.innerHTML = `
+        <strong>${facility.name}</strong> までの参考ルート（車）<br>
+        所要時間の目安：${leg.duration.text}／距離：${leg.distance.text}
+        <br><span style="font-size:12px;color:#888;">※この区間の公共交通ルート情報がGoogle側に無いため、車での目安ルートを表示しています。${!userLocation ? "現在地も取得できなかったため、飯塚市役所を出発地点にしています。" : ""}</span>
+      `;
+    } else {
+      routeInfo.innerHTML = "この区間のルートが見つかりませんでした。地図上で直接ご確認ください。";
+    }
+  });
+}
+</script>
+</body>
+</html>
