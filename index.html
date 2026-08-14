@@ -534,62 +534,6 @@ const CARE_LEVELS = [
     desc:"ほぼ寝たきりの状態で、食事・排せつ・移動など生活全般で全面的な介助が必要な状態。"},
 ];
 
-const FACILITIES = [
-  {
-    id:1, name:"すこやか苑 飯塚",
-    types:["特別養護老人ホーム","ショートステイ"],
-    accepts:["要介護1","要介護2","要介護3","要介護4","要介護5"],
-    vacancy:"あり", costMin:9, costMax:14,
-    services:["食事提供","入浴介助","機能訓練"], transport:true,
-    address:"飯塚市片島エリア（仮）", distanceKm:2.3, phone:"0948-XX-0001",
-    lat:33.6459, lng:130.6980
-  },
-  {
-    id:2, name:"にこにこホーム穂波",
-    types:["デイサービス","ショートステイ"],
-    accepts:["要支援1","要支援2","要介護1","要介護2"],
-    vacancy:"あり", costMin:3, costMax:6,
-    services:["送迎","リハビリ","レクリエーション"], transport:true,
-    address:"飯塚市穂波エリア（仮）", distanceKm:1.5, phone:"0948-XX-0002",
-    lat:33.6290, lng:130.6700
-  },
-  {
-    id:3, name:"ひまわり介護センター",
-    types:["特別養護老人ホーム"],
-    accepts:["要介護3","要介護4","要介護5"],
-    vacancy:"要問合せ", costMin:10, costMax:15,
-    services:["食事提供","入浴介助","看護師常駐"], transport:false,
-    address:"飯塚市幸袋エリア（仮）", distanceKm:4.1, phone:"0948-XX-0003",
-    lat:33.6550, lng:130.6650
-  },
-  {
-    id:4, name:"あすなろ在宅支援ホーム",
-    types:["有料老人ホーム","ショートステイ"],
-    accepts:["要支援2","要介護1","要介護2","要介護3"],
-    vacancy:"なし", costMin:12, costMax:18,
-    services:["食事提供","入浴介助","機能訓練","送迎"], transport:true,
-    address:"飯塚市鎮西エリア（仮）", distanceKm:3.0, phone:"0948-XX-0004",
-    lat:33.6390, lng:130.7050
-  },
-  {
-    id:5, name:"つばさデイサービスセンター",
-    types:["デイサービス"],
-    accepts:["要支援1","要支援2","要介護1"],
-    vacancy:"あり", costMin:2, costMax:4,
-    services:["送迎","レクリエーション","口腔ケア"], transport:true,
-    address:"飯塚市庄内エリア（仮）", distanceKm:5.2, phone:"0948-XX-0005",
-    lat:33.6100, lng:130.7250
-  },
-  {
-    id:6, name:"みのりの家 頴田",
-    types:["特別養護老人ホーム","デイサービス"],
-    accepts:["要介護2","要介護3","要介護4","要介護5"],
-    vacancy:"あり", costMin:9, costMax:13,
-    services:["食事提供","看護師常駐","機能訓練"], transport:true,
-    address:"飯塚市頴田エリア（仮）", distanceKm:6.8, phone:"0948-XX-0006",
-    lat:33.6700, lng:130.7400
-  },
-];
 
 /* 補助金・支援金データ（飯塚市公式サイト等の公開情報をもとに作成、テスト表示用） */
 const SUBSIDIES_COMMON = [
